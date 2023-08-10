@@ -1,15 +1,15 @@
-'''
+"""
 metrics
 
 Contact: adalca@csail.mit.edu
-'''
+"""
 
 #  imports
 import numpy as np
 
 
-def dice(vol1, vol2, labels=None, nargout=1, method='iter'):
-    '''
+def dice(vol1, vol2, labels=None, nargout=1, method="iter"):
+    """
     Dice [1] volume overlap metric
 
     The default is to *not* return a measure for the background layer (label = 0)
@@ -32,7 +32,7 @@ def dice(vol1, vol2, labels=None, nargout=1, method='iter'):
     if nargout == 1 : dice : vector of dice measures for each labels
     if nargout == 2 : (dice, labels) : where labels is a vector of the labels on which
         dice was computed
-    '''
+    """
 
     if labels is None:
         labels = np.unique(np.concatenate((vol1, vol2)))

@@ -147,7 +147,7 @@ def bw_convex_hull(bwvol):
     return np.concatenate([grid[d].flat for d in bwvol.ndims], 1)
 
 
-def bw2contour(bwvol, type='both', thr=1.01):
+def bw2contour(bwvol, type="both", thr=1.01):
     """
     computes the contour of island(s) on a nd logical volume
 
@@ -173,12 +173,12 @@ def bw2contour(bwvol, type='both', thr=1.01):
     # obtain a signed distance transform for the bw volume
     sdtrf = bw2sdtrf(bwvol)
 
-    if type == 'inner':
+    if type == "inner":
         return np.logical_and(sdtrf <= 0, sdtrf > -thr)
-    elif type == 'outer':
+    elif type == "outer":
         return np.logical_and(sdtrf >= 0, sdtrf < thr)
     else:
-        assert type == 'both', 'type should only be inner, outer or both'
+        assert type == "both", "type should only be inner, outer or both"
         return np.abs(sdtrf) < thr
 
 
@@ -193,8 +193,12 @@ def bw_sphere(volshape, rad, loc=None):
     # if the location is not given, use the center of the volume.
     if loc is None:
         loc = 1.0 * (np.array(volshape) - 1) / 2
-    assert len(loc) == len(volshape), \
-        'Location (%d) and volume dimensions (%d) do not match' % (len(loc), len(volshape))
+    assert len(loc) == len(
+        volshape
+    ), "Location (%d) and volume dimensions (%d) do not match" % (
+        len(loc),
+        len(volshape),
+    )
 
     # compute distances between each location in the volume and ``loc``
     volgrid = volsize2ndgrid(volshape)
@@ -214,7 +218,7 @@ def ndgrid(*args, **kwargs):
     Same as calling ``meshgrid`` with *indexing* = ``'ij'`` (see
     ``meshgrid`` for documentation).
     """
-    kwargs['indexing'] = 'ij'
+    kwargs["indexing"] = "ij"
     return np.meshgrid(*args, **kwargs)
 
 
@@ -264,8 +268,9 @@ def volcrop(vol, new_vol_shape=None, start=None, end=None, crop=None):
 
     # from whatever is passed, we want to obtain start and end.
     if passed_start and passed_end:
-        assert not (passed_new_vol_shape or passed_crop), \
-            "If passing start and end, don't pass anything else"
+        assert not (
+            passed_new_vol_shape or passed_crop
+        ), "If passing start and end, don't pass anything else"
 
     elif passed_new_vol_shape:
         # compute new volume size and crop_size
@@ -273,13 +278,15 @@ def volcrop(vol, new_vol_shape=None, start=None, end=None, crop=None):
 
         # compute start and end
         if passed_start:
-            assert not passed_end, \
-                "When giving passed_new_vol_shape, cannot pass both start and end"
+            assert (
+                not passed_end
+            ), "When giving passed_new_vol_shape, cannot pass both start and end"
             end = start + new_vol_shape
 
         elif passed_end:
-            assert not passed_start, \
-                "When giving passed_new_vol_shape, cannot pass both start and end"
+            assert (
+                not passed_start
+            ), "When giving passed_new_vol_shape, cannot pass both start and end"
             start = end - new_vol_shape
 
         else:  # none of crop_size, crop, start or end are passed
@@ -288,8 +295,9 @@ def volcrop(vol, new_vol_shape=None, start=None, end=None, crop=None):
             end = start + new_vol_shape
 
     elif passed_crop:
-        assert not (passed_start or passed_end or new_vol_shape), \
-            "Cannot pass both passed_crop and start or end or new_vol_shape"
+        assert not (
+            passed_start or passed_end or new_vol_shape
+        ), "Cannot pass both passed_crop and start or end or new_vol_shape"
 
         if isinstance(crop[0], (list, tuple)):
             end = vol_shape - [val[1] for val in crop]
@@ -312,16 +320,23 @@ def volcrop(vol, new_vol_shape=None, start=None, end=None, crop=None):
 
     # special case 1, 2, 3 since it's faster with slicing
     if len(start) == 1:
-        rvol = vol[start[0]:end[0]]
+        rvol = vol[start[0] : end[0]]
     elif len(start) == 2:
-        rvol = vol[start[0]:end[0], start[1]:end[1]]
+        rvol = vol[start[0] : end[0], start[1] : end[1]]
     elif len(start) == 3:
-        rvol = vol[start[0]:end[0], start[1]:end[1], start[2]:end[2]]
+        rvol = vol[start[0] : end[0], start[1] : end[1], start[2] : end[2]]
     elif len(start) == 4:
-        rvol = vol[start[0]:end[0], start[1]:end[1], start[2]:end[2], start[3]:end[3]]
+        rvol = vol[
+            start[0] : end[0], start[1] : end[1], start[2] : end[2], start[3] : end[3]
+        ]
     elif len(start) == 5:
-        rvol = vol[start[0]:end[0], start[1]:end[1], start[2]:end[2],
-                   start[3]:end[3], start[4]:end[4]]
+        rvol = vol[
+            start[0] : end[0],
+            start[1] : end[1],
+            start[2] : end[2],
+            start[3] : end[3],
+            start[4] : end[4],
+        ]
     else:
         idx = range(start, end)
         rvol = vol[np.ix_(*idx)]
@@ -457,7 +472,7 @@ def ind2sub_entries(indices, size, **kwargs):
     return subvec
 
 
-def gaussian_kernel(sigma, windowsize=None, indexing='ij'):
+def gaussian_kernel(sigma, windowsize=None, indexing="ij"):
     """
     Create a gaussian kernel nd image
 
@@ -487,10 +502,12 @@ def gaussian_kernel(sigma, windowsize=None, indexing='ij'):
         windowsize = [np.round(f * 3) * 2 + 1 for f in sigma]
 
     if len(sigma) != len(windowsize):
-        raise ValueError('sigma and windowsize should have the same length.'
-                         'Got vectors: ' + str(sigma) + 'and' + str(windowsize))
+        raise ValueError(
+            "sigma and windowsize should have the same length."
+            "Got vectors: " + str(sigma) + "and" + str(windowsize)
+        )
 
-    assert indexing == 'ij', 'Only ij indexing implemented so far'
+    assert indexing == "ij", "Only ij indexing implemented so far"
 
     # ok, let's get to work.
     mid = [(w - 1) / 2 for w in windowsize]
@@ -501,8 +518,10 @@ def gaussian_kernel(sigma, windowsize=None, indexing='ij'):
 
     # compute independent gaussians
     diff = [mesh[f] - mid[f] for f in range(len(windowsize))]
-    exp_term = [- np.square(diff[f]) / (2 * (sigma[f]**2)) for f in range(nb_dims)]
-    norms = [exp_term[f] - np.log(sigma[f] * np.sqrt(2 * np.pi)) for f in range(nb_dims)]
+    exp_term = [-np.square(diff[f]) / (2 * (sigma[f] ** 2)) for f in range(nb_dims)]
+    norms = [
+        exp_term[f] - np.log(sigma[f] * np.sqrt(2 * np.pi)) for f in range(nb_dims)
+    ]
 
     # add an all-ones entry and transform into a large matrix
     norms_matrix = np.stack(norms, axis=-1)  # *volshape x N
@@ -513,23 +532,25 @@ def gaussian_kernel(sigma, windowsize=None, indexing='ij'):
     return g
 
 
-def perlin_vol(vol_shape, min_scale=0, max_scale=None, interp_order=1, wt_type='monotonic'):
+def perlin_vol(
+    vol_shape, min_scale=0, max_scale=None, interp_order=1, wt_type="monotonic"
+):
     """
-    generate perlin noise ND volume 
+    generate perlin noise ND volume
 
     rough algorithm:
 
     vol = zeros
     for scale in scales:
         rand = generate random uniform noise at given scale
-        vol += wt * upsampled rand to vol_shape 
+        vol += wt * upsampled rand to vol_shape
 
 
     Parameters
     ----------
     vol_shape: list indicating input shape.
     min_scale: higher min_scale = less high frequency noise
-      the minimum rescale vol_shape/(2**min_scale), min_scale of 0 (default) 
+      the minimum rescale vol_shape/(2**min_scale), min_scale of 0 (default)
       means start by not rescaling, and go down.
     max_scale: maximum scale, if None computes such that smallest volume shape is [1]
     interp_order: interpolation (upscale) order, as used in scipy.ndimage.interpolate.zoom
@@ -541,22 +562,25 @@ def perlin_vol(vol_shape, min_scale=0, max_scale=None, interp_order=1, wt_type='
     """
 
     # input handling
-    assert wt_type in ['monotonic', 'random'], \
+    assert wt_type in ["monotonic", "random"], (
         "wt_type should be in 'monotonic', 'random', got: %s" % wt_type
+    )
 
     if max_scale is None:
         max_width = np.max(vol_shape)
-        max_scale = np.ceil(np.log2(max_width)).astype('int')
+        max_scale = np.ceil(np.log2(max_width)).astype("int")
 
     # decide on scales:
     scale_shapes = []
     wts = []
     for i in range(min_scale, max_scale + 1):
-        scale_shapes.append(np.ceil([f / (2**i) for f in vol_shape]).astype('int'))
+        scale_shapes.append(np.ceil([f / (2**i) for f in vol_shape]).astype("int"))
 
         # determine weight
-        if wt_type == 'monotonic':
-            wts.append(i + 1)  # larger images (so more high frequencies) get lower weight
+        if wt_type == "monotonic":
+            wts.append(
+                i + 1
+            )  # larger images (so more high frequencies) get lower weight
         else:
             wts.append(np.random.random())
     wts = np.array(wts) / np.sum(wts)
@@ -564,13 +588,14 @@ def perlin_vol(vol_shape, min_scale=0, max_scale=None, interp_order=1, wt_type='
     # get perlin volume
     vol = np.zeros(vol_shape)
     for sci, sc in enumerate(scale_shapes):
-
         # get a small random volume
         rand_vol = np.random.random(sc)
 
         # interpolated rand volume to upper side
         reshape_factor = [vol_shape[d] / sc[d] for d in range(len(vol_shape))]
-        interp_vol = scipy.ndimage.interpolation.zoom(rand_vol, reshape_factor, order=interp_order)
+        interp_vol = scipy.ndimage.interpolation.zoom(
+            rand_vol, reshape_factor, order=interp_order
+        )
 
         # add to existing volume
         vol = vol + wts[sci] * interp_vol
@@ -593,7 +618,7 @@ def sphere_vol(vol_shape, radius, center=None, dtype=bool):
     """
 
     # prepare inputs
-    assert isinstance(vol_shape, (list, tuple)), 'vol_shape needs to be a list or tuple'
+    assert isinstance(vol_shape, (list, tuple)), "vol_shape needs to be a list or tuple"
     ndims = len(vol_shape)
 
     if not isinstance(center, (list, tuple)):
@@ -602,14 +627,16 @@ def sphere_vol(vol_shape, radius, center=None, dtype=bool):
         else:
             center = [center] * ndims
     else:
-        assert len(center) == ndims, "center list length does not match vol_shape length"
+        assert (
+            len(center) == ndims
+        ), "center list length does not match vol_shape length"
 
     # check dtype
-    assert dtype in [bool, np.float32], 'dtype should be bool, np.float32'
+    assert dtype in [bool, np.float32], "dtype should be bool, np.float32"
 
     # prepare mesh
     mesh = volsize2ndgrid(vol_shape)
-    centered_mesh = [(mesh[f] - center[f])**2 for f in range(ndims)]
+    centered_mesh = [(mesh[f] - center[f]) ** 2 for f in range(ndims)]
     dist_from_center = np.sqrt(np.sum(np.stack(centered_mesh, ndims), ndims))
 
     # create sphere
@@ -628,6 +655,7 @@ def sphere_vol(vol_shape, radius, center=None, dtype=bool):
 # internal
 ###############################################################################
 
+
 def _prep_range(*args):
     """
     _prep_range([start], end [,step])
@@ -639,10 +667,10 @@ def _prep_range(*args):
     """
 
     # prepare the start, step and end
-    step = np.ones(len(args[0]), 'int')
+    step = np.ones(len(args[0]), "int")
     if len(args) == 1:
         end = args[0]
-        start = np.zeros(len(end), 'int')
+        start = np.zeros(len(end), "int")
     elif len(args) == 2:
         assert len(args[0]) == len(args[1]), "argument vectors do not match"
         start, end = args
@@ -651,6 +679,6 @@ def _prep_range(*args):
         assert len(args[0]) == len(args[2]), "argument vectors do not match"
         start, end, step = args
     else:
-        raise ValueError('unknown arguments')
+        raise ValueError("unknown arguments")
 
     return (start, end, step)

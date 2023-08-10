@@ -18,12 +18,14 @@ import numpy as np
 from . import ndutils as nd
 
 
-def quilt(patches,
-          patch_size,
-          grid_size,
-          patch_stride=1,
-          nan_func_layers=np.nanmean,
-          nan_func_K=np.nanmean):
+def quilt(
+    patches,
+    patch_size,
+    grid_size,
+    patch_stride=1,
+    nan_func_layers=np.nanmean,
+    nan_func_K=np.nanmean,
+):
     """
     quilt (merge) or reconstruct volume from patch indexes in library
 
@@ -46,9 +48,13 @@ def quilt(patches,
     """
 
     # input checks
-    assert patches.ndim == 2 or patches.ndim == 3, 'patches should be [NxV] or [NxVxK]'
-    assert patches.shape[1] == np.prod(patch_size), \
-        "patches V (%d) does not match patch size V (%d)" % (patches.shape[1], np.prod(patch_size))
+    assert patches.ndim == 2 or patches.ndim == 3, "patches should be [NxV] or [NxVxK]"
+    assert patches.shape[1] == np.prod(
+        patch_size
+    ), "patches V (%d) does not match patch size V (%d)" % (
+        patches.shape[1],
+        np.prod(patch_size),
+    )
     nb_dims = len(patch_size)
 
     # stack patches
@@ -57,7 +63,9 @@ def quilt(patches,
     # quilt via nan_funs
     quilted_vol_k = nan_func_layers(patch_stack, 0)
     quilted_vol = nan_func_K(quilted_vol_k, nb_dims)
-    assert quilted_vol.ndim == len(patch_size), "patchlib: problem with dimensions after quilt"
+    assert quilted_vol.ndim == len(
+        patch_size
+    ), "patchlib: problem with dimensions after quilt"
 
     # done, yey! time to celebrate - maybe visualize the quilted volume?
     return quilted_vol
@@ -111,14 +119,18 @@ def stack(patches, patch_size, grid_size, patch_stride=1, nargout=1):
     K = patches.shape[2] if len(patches.shape) > 2 else 1
 
     # compute the input target_size and target
-    if np.prod(grid_size) == patches.shape[0]:  # given the number of patches in the grid
+    if (
+        np.prod(grid_size) == patches.shape[0]
+    ):  # given the number of patches in the grid
         target_size = grid2volsize(grid_size, patch_size, patch_stride=patch_stride)
     else:
         target_size = grid_size
 
     # compute the grid indexes (and check that the target size matches)
     [grid_idx, target_size_chk] = grid(target_size, patch_size, patch_stride, nargout=2)
-    assert np.all(target_size == target_size_chk), 'Target does not match the provided target size'
+    assert np.all(
+        target_size == target_size_chk
+    ), "Target does not match the provided target size"
 
     # prepare subscript and index vectors
     grid_sub = nd.ind2sub_entries(grid_idx, target_size)
@@ -155,7 +167,6 @@ def stack(patches, patch_size, grid_size, patch_stride=1, nargout=1):
 
         # go thorugh each patch location for patches in this layer
         for pidx in patch_id_in_layer[0]:
-
             # extract the patches
             localpatches = np.squeeze(patches[pidx, :])
             patch = np.reshape(localpatches, [*patch_size, K])
@@ -215,12 +226,12 @@ def grid2volsize(grid_size, patch_size, patch_stride=1):
 
     # parameter checking
     if not isinstance(grid_size, np.ndarray):
-        grid_size = np.array(grid_size, 'int')
+        grid_size = np.array(grid_size, "int")
     if not isinstance(patch_size, np.ndarray):
-        patch_size = np.array(patch_size, 'int')
-    nb_dims = len(patch_size)   # number of dimensions
+        patch_size = np.array(patch_size, "int")
+    nb_dims = len(patch_size)  # number of dimensions
     if isinstance(patch_stride, int):
-        patch_stride = np.repeat(patch_stride, nb_dims).astype('int')
+        patch_stride = np.repeat(patch_stride, nb_dims).astype("int")
 
     patch_overlap = patch_size - patch_stride
     vol_size = grid_size * patch_stride + patch_overlap
@@ -258,14 +269,14 @@ def gridsize(vol_size, patch_size, patch_stride=1, start_sub=0, nargout=1):
 
     # parameter checking
     if not isinstance(vol_size, np.ndarray):
-        vol_size = np.array(vol_size, 'int')
+        vol_size = np.array(vol_size, "int")
     if not isinstance(patch_size, np.ndarray):
-        patch_size = np.array(patch_size, 'int')
-    nb_dims = len(patch_size)   # number of dimensions
+        patch_size = np.array(patch_size, "int")
+    nb_dims = len(patch_size)  # number of dimensions
     if isinstance(patch_stride, int):
-        patch_stride = np.repeat(patch_stride, nb_dims).astype('int')
+        patch_stride = np.repeat(patch_stride, nb_dims).astype("int")
     if isinstance(start_sub, int):
-        start_sub = np.repeat(start_sub, nb_dims).astype('int')
+        start_sub = np.repeat(start_sub, nb_dims).astype("int")
 
     # adjacent patch overlap
     patch_overlap = patch_size - patch_stride
@@ -279,7 +290,7 @@ def gridsize(vol_size, patch_size, patch_stride=1, start_sub=0, nargout=1):
     # >> grid_size * patch_stride + patch_overlap
     # thus the part that is a multiplier of patch_stride is vol_size - patch_overlap
     patch_stride_multiples = mod_vol_size - patch_overlap  # not sure?
-    grid_size = np.floor(patch_stride_multiples / patch_stride).astype('int')
+    grid_size = np.floor(patch_stride_multiples / patch_stride).astype("int")
     assert np.all(np.array(grid_size) > 0), "Grid size is non-positive"
 
     if nargout == 1:
@@ -290,7 +301,7 @@ def gridsize(vol_size, patch_size, patch_stride=1, start_sub=0, nargout=1):
         return (grid_size, new_vol_size)
 
 
-def grid(vol_size, patch_size, patch_stride=1, start_sub=0, nargout=1, grid_type='idx'):
+def grid(vol_size, patch_size, patch_stride=1, start_sub=0, nargout=1, grid_type="idx"):
     """
     grid of patch starting points for nd volume that fit into given volume size
 
@@ -328,22 +339,21 @@ def grid(vol_size, patch_size, patch_stride=1, start_sub=0, nargout=1, grid_type
     """
 
     # parameter checking
-    assert grid_type in ('idx', 'sub')
+    assert grid_type in ("idx", "sub")
     if not isinstance(vol_size, np.ndarray):
-        vol_size = np.array(vol_size, 'int')
+        vol_size = np.array(vol_size, "int")
     if not isinstance(patch_size, np.ndarray):
-        patch_size = np.array(patch_size, 'int')
-    nb_dims = len(patch_size)   # number of dimensions
+        patch_size = np.array(patch_size, "int")
+    nb_dims = len(patch_size)  # number of dimensions
     if isinstance(patch_stride, int):
-        patch_stride = np.repeat(patch_stride, nb_dims).astype('int')
+        patch_stride = np.repeat(patch_stride, nb_dims).astype("int")
     if isinstance(start_sub, int):
-        start_sub = np.repeat(start_sub, nb_dims).astype('int')
+        start_sub = np.repeat(start_sub, nb_dims).astype("int")
 
     # get the grid data
-    [grid_size, new_vol_size] = gridsize(vol_size, patch_size,
-                                         patch_stride=patch_stride,
-                                         start_sub=start_sub,
-                                         nargout=2)
+    [grid_size, new_vol_size] = gridsize(
+        vol_size, patch_size, patch_stride=patch_stride, start_sub=start_sub, nargout=2
+    )
 
     # compute grid linear index
     # prepare the sample grid in each dimension
@@ -351,14 +361,14 @@ def grid(vol_size, patch_size, patch_stride=1, start_sub=0, nargout=1, grid_type
     for idx in range(nb_dims):
         volend = new_vol_size[idx] + start_sub[idx] - patch_size[idx] + 1
         locs = list(range(start_sub[idx], volend, patch_stride[idx]))
-        xvec += (locs, )
+        xvec += (locs,)
         assert any((locs[-1] + patch_size - 1) == (new_vol_size + start_sub - 1))
 
     # get the nd grid
     # if want subs, this is the faster way to compute in MATLAB (rather than ind -> ind2sub)
     # TODO: need to investigate for python, maybe use np.ix_ ?
     idx = nd.ndgrid(*xvec)
-    if grid_type == 'idx':
+    if grid_type == "idx":
         # if want index, this is the faster way to compute (rather than sub -> sub2ind
         all_idx = np.array(list(range(0, np.prod(vol_size))))
         all_idx = np.reshape(all_idx, vol_size)
@@ -393,25 +403,32 @@ def patch_gen(vol, patch_size, stride=1, nargout=1, rand=False, rand_seed=None):
     # some parameter checking
     if isinstance(stride, int):
         stride = [stride for f in patch_size]
-    assert len(vol.shape) == len(patch_size), \
-        "vol shape %s and patch size %s do not match dimensions" \
-        % (pformat(vol.shape), pformat(patch_size))
-    assert len(vol.shape) == len(stride), \
-        "vol shape %s and patch stride %s do not match dimensions" \
-        % (pformat(vol.shape), pformat(stride))
+    assert len(vol.shape) == len(
+        patch_size
+    ), "vol shape %s and patch size %s do not match dimensions" % (
+        pformat(vol.shape),
+        pformat(patch_size),
+    )
+    assert len(vol.shape) == len(
+        stride
+    ), "vol shape %s and patch stride %s do not match dimensions" % (
+        pformat(vol.shape),
+        pformat(stride),
+    )
 
     cropped_vol_size = np.array(vol.shape) - np.array(patch_size) + 1
-    assert np.all(cropped_vol_size >= 0), \
-        "patch size needs to be smaller than volume size"
+    assert np.all(
+        cropped_vol_size >= 0
+    ), "patch size needs to be smaller than volume size"
 
     # get range subs
     sub = ()
     for idx, cvs in enumerate(cropped_vol_size):
-        sub += (list(range(0, cvs, stride[idx])), )
+        sub += (list(range(0, cvs, stride[idx])),)
 
     # check the size
     gs = gridsize(vol.shape, patch_size, patch_stride=stride)
-    assert [len(f) for f in sub] == list(gs), 'Patch gen side failure'
+    assert [len(f) for f in sub] == list(gs), "Patch gen side failure"
 
     # get ndgrid of subs
     ndg = nd.ndgrid(*sub)
@@ -435,6 +452,7 @@ def patch_gen(vol, patch_size, stride=1, nargout=1, rand=False, rand_seed=None):
 
 
 # local helper functions
+
 
 def _mod_base(num, div, base=0):
     """

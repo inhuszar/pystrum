@@ -1,15 +1,15 @@
-'''
+"""
 nd segmentation (label map) utilities
 
 Contact: adalca@csail.mit.edu
-'''
+"""
 
 import numpy as np
 from . import ndutils as nd
 
 
-def seg2contour(seg, exclude_zero=True, contour_type='inner', thickness=1):
-    '''
+def seg2contour(seg, exclude_zero=True, contour_type="inner", thickness=1):
+    """
     transform nd segmentation (label maps) to contour maps
 
     Parameters
@@ -30,7 +30,7 @@ def seg2contour(seg, exclude_zero=True, contour_type='inner', thickness=1):
     See Also
     --------
     seg_overlap
-    '''
+    """
 
     # extract unique labels
     labels = np.unique(seg)
@@ -40,7 +40,6 @@ def seg2contour(seg, exclude_zero=True, contour_type='inner', thickness=1):
     # get the contour of each label
     contour_map = seg * 0
     for lab in labels:
-
         # extract binary label map for this label
         label_map = seg == lab
 
@@ -55,18 +54,18 @@ def seg2contour(seg, exclude_zero=True, contour_type='inner', thickness=1):
 
 
 def seg_overlap(vol, seg, do_contour=True, do_rgb=True, cmap=None, thickness=1.0):
-    '''
+    """
     overlap a nd volume and nd segmentation (label map)
 
     do_contour should be None, boolean, or contour_type from seg2contour
 
     not well tested yet.
-    '''
+    """
 
     # compute contours for each label if necessary
     if do_contour is not None and do_contour is not False:
         if not isinstance(do_contour, str):
-            do_contour = 'inner'
+            do_contour = "inner"
         seg = seg2contour(seg, contour_type=do_contour, thickness=thickness)
 
     # compute a rgb-contour map
@@ -82,7 +81,7 @@ def seg_overlap(vol, seg, do_contour=True, do_rgb=True, cmap=None, thickness=1.0
         sf = seg.flat == 0
         for d in range(3):
             olap[sf, d] = vol.flat[sf]
-        olap = np.reshape(olap, vol.shape + (3, ))
+        olap = np.reshape(olap, vol.shape + (3,))
 
     else:
         olap = seg
@@ -92,11 +91,11 @@ def seg_overlap(vol, seg, do_contour=True, do_rgb=True, cmap=None, thickness=1.0
 
 
 def seg_overlay(vol, seg, do_rgb=True, seg_wt=0.5, cmap=None):
-    '''
+    """
     overlap a nd volume and nd segmentation (label map)
 
     not well tested yet.
-    '''
+    """
 
     # compute contours for each label if necessary
 
@@ -110,7 +109,7 @@ def seg_overlay(vol, seg, do_rgb=True, seg_wt=0.5, cmap=None):
             colors = cmap[:, 0:3]
 
         seg_flat = colors[seg.flat, :]
-        seg_rgb = np.reshape(seg_flat, vol.shape + (3, ))
+        seg_rgb = np.reshape(seg_flat, vol.shape + (3,))
 
         # get the overlap image
         olap = seg_rgb * seg_wt + np.expand_dims(vol, -1) * (1 - seg_wt)
